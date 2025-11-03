@@ -1,14 +1,6 @@
 
-"""
-Payroll proof-of-concept (refactored to meet assignment function requirements)
+from datetime import datetime
 
-Requirements implemented:
- - Loop until user types 'End'
- - Separate functions for: name, hours, hourly rate, tax rate input
- - calculate_pay(hours, rate, tax_rate) returns gross, taxes, net
- - display_employee(...) to show per-employee results
- - display_summary(...) to show totals at the end
-"""
 
 def parse_tax_rate(s: str) -> float:
     s = s.strip()
@@ -67,6 +59,22 @@ def get_income_tax_rate() -> float:
             print("Please enter a valid tax rate (percent or decimal).")
 
 
+def get_date_range():
+    """Prompt for From and To dates in mm/dd/yyyy and return them as strings.
+    This function validates the format and will re-prompt on invalid input.
+    """
+    while True:
+        frm = input("From date (mm/dd/yyyy): ").strip()
+        to = input("To date (mm/dd/yyyy): ").strip()
+        try:
+            
+            datetime.strptime(frm, "%m/%d/%Y")
+            datetime.strptime(to, "%m/%d/%Y")
+            return frm, to
+        except Exception:
+            print("Please enter dates in mm/dd/yyyy format. Try again.")
+
+
 def calculate_pay(hours: float, rate: float, tax_rate: float):
     gross = hours * rate
     taxes = gross * tax_rate
@@ -86,26 +94,54 @@ def display_employee(name: str, hours: float, rate: float, gross: float, tax_rat
     print("-" * 40)
 
 
-def display_summary(total_employees: int, total_hours: float, total_gross: float, total_taxes: float, total_net: float):
+def process_records(records: list) -> dict:
+    """Read through the records, calculate pay for each employee, display details,
+    and accumulate totals into a dictionary which is returned.
+    Each record is a dict with keys: from, to, name, hours, rate, tax_rate
+    """
+    totals = {
+        'employees': 0,
+        'hours': 0.0,
+        'gross': 0.0,
+        'taxes': 0.0,
+        'net': 0.0,
+    }
+    for rec in records:
+        gross, taxes, net = calculate_pay(rec['hours'], rec['rate'], rec['tax_rate'])
+        print()
+        print(f"From date: {rec['from']}")
+        print(f"To date:   {rec['to']}")
+        display_employee(rec['name'], rec['hours'], rec['rate'], gross, rec['tax_rate'], taxes, net)
+
+        totals['employees'] += 1
+        totals['hours'] += rec['hours']
+        totals['gross'] += gross
+        totals['taxes'] += taxes
+        totals['net'] += net
+
+    return totals
+
+
+def display_summary(totals: dict):
+    """Display totals read from the totals dictionary.
+    Expected keys: 'employees', 'hours', 'gross', 'taxes', 'net'.
+    """
     print()
     print("Summary for all employees:")
-    print(f"Total employees: {total_employees}")
-    print(f"Total hours worked: {total_hours}")
-    print(f"Total gross pay: {money(total_gross)}")
-    print(f"Total income taxes: {money(total_taxes)}")
-    print(f"Total net pay: {money(total_net)}")
+    print(f"Total employees: {totals.get('employees', 0)}")
+    print(f"Total hours worked: {totals.get('hours', 0.0)}")
+    print(f"Total gross pay: {money(totals.get('gross', 0.0))}")
+    print(f"Total income taxes: {money(totals.get('taxes', 0.0))}")
+    print(f"Total net pay: {money(totals.get('net', 0.0))}")
 
 
 def main():
     print("Payroll entry - enter employee data. Type 'End' for the name to finish.")
-
-    total_employees = 0
-    total_hours = 0.0
-    total_gross = 0.0
-    total_taxes = 0.0
-    total_net = 0.0
+    
+    records = []
 
     while True:
+        # prompt for name first so the user can type 'End' immediately to finish
         name = get_employee_name()
         if name.lower() == 'end':
             break
@@ -113,20 +149,25 @@ def main():
             print("Name cannot be empty. Try again.")
             continue
 
+        # now get the date range and the rest of the inputs
+        frm, to = get_date_range()
+
         hours = get_hours()
         rate = get_hourly_rate()
         tax_rate = get_income_tax_rate()
 
-        gross, taxes, net = calculate_pay(hours, rate, tax_rate)
+        records.append({
+            'from': frm,
+            'to': to,
+            'name': name,
+            'hours': hours,
+            'rate': rate,
+            'tax_rate': tax_rate,
+        })
 
-        total_employees += 1
-        total_hours += hours
-        total_gross += gross
-        total_taxes += taxes
-        total_net += net
-
-        display_employee(name, hours, rate, gross, tax_rate, taxes, net)
-
-    display_summary(total_employees, total_hours, total_gross, total_taxes, total_net)
+    
+    totals = process_records(records)
+    # pass the totals dictionary to the display function
+    display_summary(totals)
 if __name__ == '__main__':
     main()
