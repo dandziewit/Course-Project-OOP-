@@ -141,7 +141,7 @@ def main():
     records = []
 
     while True:
-        # prompt for name first so the user can type 'End' immediately to finish
+       
         name = get_employee_name()
         if name.lower() == 'end':
             break
@@ -149,7 +149,7 @@ def main():
             print("Name cannot be empty. Try again.")
             continue
 
-        # now get the date range and the rest of the inputs
+        
         frm, to = get_date_range()
 
         hours = get_hours()
@@ -167,7 +167,7 @@ def main():
 
     
     totals = process_records(records)
-    # pass the totals dictionary to the display function
+    
     display_summary(totals)
 if __name__ == '__main__':
     main()
