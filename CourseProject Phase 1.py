@@ -127,14 +127,14 @@ def append_record_to_file(frm: str, to: str, name: str, hours: float, rate: floa
     """Append a single record to the data file in pipe-delimited format.
     Format: from|to|name|hours|rate|tax_rate
     """
-    # Normalize the dates to mm/dd/YYYY to ensure consistent storage
+    
     try:
         frm_dt = datetime.strptime(frm, "%m/%d/%Y")
         to_dt = datetime.strptime(to, "%m/%d/%Y")
         frm_s = frm_dt.strftime("%m/%d/%Y")
         to_s = to_dt.strftime("%m/%d/%Y")
     except Exception:
-        # If parsing fails, fall back to the raw strings provided
+        
         frm_s = frm
         to_s = to
 
@@ -144,11 +144,8 @@ def append_record_to_file(frm: str, to: str, name: str, hours: float, rate: floa
 
 
 def run_report():
-    """Prompt for a From date (or 'All') and read the data file, printing
-    the records that match. Compute gross, taxes and net for each and a final
-    totals summary.
-    """
-    
+   
+
     while True:
         choice = input("Enter From date to report on (mm/dd/yyyy) or 'All': ").strip()
         if choice.lower() == 'all':
@@ -156,7 +153,7 @@ def run_report():
             break
         try:
             parsed = datetime.strptime(choice, "%m/%d/%Y")
-            # Normalize the choice string to the same format we store in the file
+            
             choice = parsed.strftime("%m/%d/%Y")
             filter_all = False
             break
@@ -214,9 +211,7 @@ def run_report():
 
 
 def display_summary(totals: dict):
-    """Display totals read from the totals dictionary.
-    Expected keys: 'employees', 'hours', 'gross', 'taxes', 'net'.
-    """
+    
     print()
     print("Summary for all employees:")
     print(f"Total employees: {totals.get('employees', 0)}")
@@ -246,15 +241,14 @@ def main():
 
         
         frm, to = get_date_range()
-        # Normalize the dates immediately so both the in-memory record
-        # and the file use the same mm/dd/YYYY format.
+        
         try:
             frm_dt = datetime.strptime(frm, "%m/%d/%Y")
             to_dt = datetime.strptime(to, "%m/%d/%Y")
             frm = frm_dt.strftime("%m/%d/%Y")
             to = to_dt.strftime("%m/%d/%Y")
         except Exception:
-            # If parsing fails, leave the original strings
+            
             pass
 
         hours = get_hours()
@@ -275,8 +269,7 @@ def main():
         except Exception as e:
             print(f"Warning: could not write record to file: {e}")
 
-    # After data entry is finished, run the report prompt so the user
-    # can view the saved records. This will ask for a From date or 'All'.
+    
     print()
     run_report()
     
