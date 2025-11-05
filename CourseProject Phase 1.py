@@ -232,7 +232,11 @@ def main():
     records = []
 
     while True:
+<<<<<<< HEAD
         
+=======
+       
+>>>>>>> 0c47ea6488dd2fd766bf60e81260a928fb8c6c5e
         name = get_employee_name()
         if name.lower() == 'end':
             break
@@ -276,5 +280,11 @@ def main():
     print()
     run_report()
     
+<<<<<<< HEAD
+=======
+    totals = process_records(records)
+    
+    display_summary(totals)
+>>>>>>> 0c47ea6488dd2fd766bf60e81260a928fb8c6c5e
 if __name__ == '__main__':
     main()
